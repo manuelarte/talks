@@ -1,0 +1,19 @@
+---
+version: "2"
+
+overrides:
+  go:
+    overrides:
+      - db_type: "uuid"
+        go_type:
+          import: "github.com/google/uuid"
+          type: "UUID"
+
+sql:
+  - engine: "sqlite"
+    queries: "query.sql"
+    schema: "/resources/migrations/*"
+    gen:
+      go:
+        package: "sqlc"
+        out: "internal/infrastructure/db/sqlc"

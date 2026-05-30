@@ -1,0 +1,38 @@
+# Transfer too much money
+POST http://localhost:8080/api/v1/550e8400-e29b-41d4-a716-446655440002/transfers/550e8400-e29b-41d4-a716-446655440001
+Content-Type: application/json
+Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+
+{
+  "amount": "500.00"
+}
+
+###
+# Transfer money
+POST http://localhost:8080/api/v1/550e8400-e29b-41d4-a716-446655440002/transfers/550e8400-e29b-41d4-a716-446655440001
+Content-Type: application/json
+Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+
+{
+"amount": "400.00"
+}
+
+###
+# Repeat Transfer money with different idempotency key
+POST http://localhost:8080/api/v1/550e8400-e29b-41d4-a716-446655440002/transfers/550e8400-e29b-41d4-a716-446655440001
+Content-Type: application/json
+Idempotency-Key: b3ac994a-34ec-4456-9e16-a4a20d8c1cb0
+
+{
+"amount": "400.00"
+}
+
+###
+# Repeat many times to check failures
+POST http://localhost:8080/api/v1/550e8400-e29b-41d4-a716-446655440012/transfers/550e8400-e29b-41d4-a716-446655440022
+Content-Type: application/json
+Idempotency-Key: {{$random.uuid}}
+
+{
+  "amount": "1.00"
+}

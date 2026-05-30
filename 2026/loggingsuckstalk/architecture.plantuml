@@ -1,0 +1,21 @@
+@startuml
+left to right direction
+skinparam actorStyle awesome
+
+cloud External {
+  [PaymentGateway] as PG
+}
+
+node "Internal" {
+  actor User
+  [App] as App
+  queue "Kafka"
+  database DB
+}
+
+User -- App :1 User request a transfer
+App --> PG :2 Requesting transfer to the payment gateway
+App -- "Kafka" :3 Sending event to Kafka
+App -- DB :4 Storing the transfer
+
+@enduml

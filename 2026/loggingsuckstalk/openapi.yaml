@@ -1,0 +1,282 @@
+---
+openapi: 3.0.1
+info:
+  # keep-sorted start
+  contact:
+    name: Manuel Doncel Martos
+    email: manueldoncelmartos@gmail.com
+    url: https://github.com/manuelarte
+  description: Go Web Layout, an example of a Go Web Project layout.
+  title: Go-Web-Layout
+  version: '0.0.1'
+  # keep-sorted end
+
+servers:
+  - url: http://localhost:{port}
+    description: Local development server.
+    variables:
+      port:
+        default: '8080'
+        description: Local development server port.
+        enum:
+          - '8080'
+
+paths:
+  # keep-sorted start
+  /api/v1/accounts/{id}:
+    get:
+      operationId: GetAccount
+      description: Get account by id.
+      summary: Get account endpoint
+      security: [ ]
+      tags:
+        - accounts
+      parameters:
+        - name: id
+          in: path
+          description: Account id
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        "4XX":
+          description: Validation Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/accounts:
+    get:
+      operationId: GetAccounts
+      description: Get all accounts.
+      summary: Get accounts endpoint
+      security: []
+      tags:
+        - accounts
+      parameters:
+        - name: page
+          in: query
+          description: Page number
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: size
+          in: query
+          description: Page size
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+            maximum: 50
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageAccounts'
+        "400":
+          description: Validation Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/{accountGiver}/transfers/{accountReceiver}:
+    post:
+      operationId: TransferMoney
+      description: Transfer money from account to account
+      summary: Transfer money between accounts
+      security: []
+      tags:
+        - accounts
+      parameters:
+        - name: accountGiver
+          in: path
+          schema:
+            type: string
+            format: uuid
+          description: Account giver id
+        - name: accountReceiver
+          in: path
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+            format: uuid
+          description: Idempotence key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoneyTransferRequest'
+      responses:
+        "200":
+          description: Transfer successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoneyTransferResponse'
+        "400":
+          description: Validation Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  # keep-sorted end
+
+components:
+  schemas:
+    # keep-sorted start
+    Account:
+      type: object
+      required:
+        - self
+        - id
+        - amount
+      properties:
+        self:
+          type: string
+          format: uri
+          description: URL to the account
+        id:
+          type: string
+          format: uuid
+          description: Id of the account
+        amount:
+          type: string
+          description: Amount of money in the account
+    ErrorResponse:
+      type: object
+      description: Error response following RFC9457.
+      required:
+        - title
+        - detail
+        - status
+      properties:
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type.
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+        status:
+          type: integer
+          description: The HTTP status code generated by the origin server for this occurrence of the problem.
+          minimum: 100
+          maximum: 599
+    MoneyTransferRequest:
+      type: object
+      description: Money transfer request
+      required:
+        - amount
+      properties:
+        amount:
+          type: string
+    MoneyTransferResponse:
+      type: object
+      description: Money transfer response
+      required:
+        - accountGiver
+        - accountReceiver
+        - amount
+      properties:
+        accountGiver:
+          type: string
+          format: uuid
+          description: Id of the account giver
+        accountReceiver:
+          type: string
+          format: uuid
+          description: Id of the account receiver
+        amount:
+          type: string
+    Page:
+      type: object
+      required:
+        - size
+        - totalCount
+        - totalPages
+        - number
+        - self
+        - prev
+        - next
+        - first
+        - last
+      properties:
+        size:
+          type: integer
+          description: Size of the page
+          minimum: 1
+        totalCount:
+          type: integer
+          format: int64
+          description: Total number of elements in the page
+          minimum: 0
+        totalPages:
+          type: integer
+          description: Total number of pages
+        number:
+          type: integer
+          description: Current page number
+          minimum: 0
+        self:
+          type: string
+          format: uri
+          description: URL to the current page
+        prev:
+          type: string
+          format: uri
+          description: URL to the previous page
+        next:
+          type: string
+          format: uri
+          description: URL to the next page
+    PageAccounts:
+      type: object
+      required:
+        - accounts
+        - page
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+        page:
+          $ref: '#/components/schemas/Page'
+    # keep-sorted end
+
+tags:
+  # keep-sorted start
+  - name: accounts
+    description: Accounts endpoints
+  # keep-sorted end
