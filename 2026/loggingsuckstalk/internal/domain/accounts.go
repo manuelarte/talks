@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/pagination"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/pagination"
 )
 
 var _ Money = new(moneyDecimal)

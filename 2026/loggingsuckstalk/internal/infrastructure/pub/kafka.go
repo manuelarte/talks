@@ -5,7 +5,7 @@ import (
 	"errors"
 	"math/rand/v2"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
 )
 
 type Pub struct{}

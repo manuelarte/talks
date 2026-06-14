@@ -1,4 +1,4 @@
-module codeberg.org/manuelarte/loggingsuckstalk
+module github.com/manuelarte/talks/2026/loggingsuckstalk
 
 go 1.26
 
