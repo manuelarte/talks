@@ -6,7 +6,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	semconv "go.opentelemetry.io/otel/semconv/v1.34.0"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/info"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/info"
 )
 
 //nolint:wrapcheck // will be wrapped by the caller

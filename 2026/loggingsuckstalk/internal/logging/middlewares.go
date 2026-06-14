@@ -48,16 +48,16 @@ func AddLogEvent(baseLogger *slog.Logger) func(http.Handler) http.Handler {
 
 					return
 				}
-				/* TODO: to show that you can conditional log
-				if wdl.fields["paymentGatewayError"] != nil || wdl.fields["kafkaEventError"] != nil {
-					baseLogger.InfoContext(r.Context(), "Transfer completed with error", mapToArgs(wdl)...)
-				} else {
-					baseLogger.InfoContext(r.Context(), "Transfer completed", mapToArgs(wdl)...)
-				}
-				*/
 
-				//nolint:contextcheck // bug in contextcheck
-				baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
+				if le.fields["paymentGatewayError"] != nil ||
+					le.fields["kafkaEventError"] != nil ||
+					le.fields["accountsUpdatedError"] != nil {
+					baseLogger.WarnContext(r.Context(), "Transfer completed with error", le.mapToArgs()...)
+				} else {
+					baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
+				}
+
+				// baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
 			}
 		})
 	}

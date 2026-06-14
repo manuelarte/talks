@@ -9,3 +9,7 @@ To start the slide show:
 Edit the [slides.md](./slides.md) to see the changes.
 
 Learn more about Slidev at the [documentation](https://sli.dev/).
+
+## Deployment
+
+The slides are deployed using Vercel at: https://talks-nir8635mz-manuel-doncels-projects.vercel.app/1

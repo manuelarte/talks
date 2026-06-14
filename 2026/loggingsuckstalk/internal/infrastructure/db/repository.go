@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/db/sqlc"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/pagination"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/db/sqlc"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/pagination"
 )
 
 var _ domain.AccountRepository = new(Repository)

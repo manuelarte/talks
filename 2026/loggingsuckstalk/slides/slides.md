@@ -57,7 +57,7 @@ cloud External {
 
 node "Internal" {
   actor User
-  [App] as App
+  [Backend] as App
   queue "Kafka"
   database DB
 }
@@ -135,6 +135,34 @@ layout: default
 * Logs as structured record of business events.
 * For each request, <span v-mark.underline.red>emit one wide event</span>.
 
+<br>
+
+<v-click>
+
+```plantuml
+@startuml
+
+actor User
+
+box "App"
+  participant REST
+  collections Middlewares
+end box
+
+User -> REST : Request
+
+group Handling request
+  REST -> Middlewares ++
+  return Response
+  REST -> User : Response
+  Middlewares -> Middlewares : Log wide event
+end
+
+@enduml
+```
+
+</v-click>
+
 ---
 layout: default
 ---
@@ -165,6 +193,7 @@ func AddLogEvent(baseLogger *slog.Logger) func(http.Handler) http.Handler {
         r = r.WithContext(context.WithValue(r.Context(), logEventKey{}, le))
         next.ServeHTTP(w, r)
         // log event
+		le.Log()
         ...
     }
 }

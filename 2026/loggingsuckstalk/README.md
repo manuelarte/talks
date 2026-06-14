@@ -47,6 +47,20 @@ Another advantage is that, we could skip logging the "normal" scenarios, in whic
 
 Since we have all the fields available in each log entry, we can also ask/filter business questions to our logs.
 
+## Running
+
+Start docker compose for OpenTelemetry:
+
+```bash
+docker compose up -d
+```
+
+And then run the app:
+
+```bash
+go run .
+```
+
 ## Swagger
 
 Swagger can be found http://localhost:8080/swagger/ and a mock client in [client](client.http).

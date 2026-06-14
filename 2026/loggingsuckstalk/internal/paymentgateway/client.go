@@ -4,6 +4,7 @@ package paymentgateway
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/rand/v2"
 	"sync"
 	"time"
@@ -11,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
 )
 
 var (
@@ -46,7 +47,7 @@ type (
 	}
 )
 
-func (c *cache) Get(key uuid.UUID) (TransferResponse, bool) {
+func (c *cache) get(key uuid.UUID) (TransferResponse, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -55,7 +56,7 @@ func (c *cache) Get(key uuid.UUID) (TransferResponse, bool) {
 	return val, ok
 }
 
-func (c *cache) Set(key uuid.UUID, val TransferResponse) {
+func (c *cache) set(key uuid.UUID, val TransferResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -72,41 +73,48 @@ func NewClient(repo domain.AccountRepository) *Client {
 }
 
 func (c *Client) Transfer(ctx context.Context, request TransferRequest) (TransferResponse, error) {
-	if response, ok := c.cache.Get(request.IdempotenceKey); ok {
-		return response, nil
+	timeToReplyMS := normalBetween(500, 6000, 2000, 1000)
+	delay := time.NewTimer(time.Duration(timeToReplyMS * float64(time.Millisecond)))
+	defer delay.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return TransferResponse{}, fmt.Errorf("timeout: %w", ctx.Err())
+		case <-delay.C:
+			if response, ok := c.cache.get(request.IdempotenceKey); ok {
+				return response, nil
+			}
+
+			giver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.GiverID))
+			if err != nil {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			receiver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.ReceiverID))
+			if err != nil {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			if !giver.CanTransfer(domain.MustMoney(request.Amount.String())) {
+				return TransferResponse{}, ErrNotEnoughSaldo
+			}
+
+			n := rand.IntN(10)
+			if n > 7 {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			tr := TransferResponse{
+				GiverAmount:       decimal.RequireFromString(giver.Amount().String()).Sub(request.Amount),
+				ReceiverAmount:    decimal.RequireFromString(receiver.Amount().String()).Add(request.Amount),
+				AmountTransferred: decimal.RequireFromString(request.Amount.String()),
+			}
+			c.cache.set(request.IdempotenceKey, tr)
+
+			return tr, nil
+		}
 	}
-
-	giver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.GiverID))
-	if err != nil {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	receiver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.ReceiverID))
-	if err != nil {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	if !giver.CanTransfer(domain.MustMoney(request.Amount.String())) {
-		return TransferResponse{}, ErrNotEnoughSaldo
-	}
-
-	// simulate it takes time
-	sleepMilis := normalBetween(400, 6000, 2000, 1000)
-	time.Sleep(time.Duration(sleepMilis) * time.Millisecond)
-
-	n := rand.IntN(10)
-	if n > 7 {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	tr := TransferResponse{
-		GiverAmount:       decimal.RequireFromString(giver.Amount().String()).Sub(request.Amount),
-		ReceiverAmount:    decimal.RequireFromString(receiver.Amount().String()).Add(request.Amount),
-		AmountTransferred: decimal.RequireFromString(request.Amount.String()),
-	}
-	c.cache.Set(request.IdempotenceKey, tr)
-
-	return tr, nil
 }
 
 func normalBetween(minValue, maxValue, mean, stddev float64) float64 {

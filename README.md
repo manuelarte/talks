@@ -4,7 +4,7 @@ Repository with the talks I have given.
 
 ## 2026
 
-- 2026-06-23 LoggingSucks (in Go)
+- 2026-06-23 [LoggingSucks (in Go)](https://talks-phi-eight.vercel.app/)
 
 Talk given at [Golang Amsterdam](https://www.meetup.com/golang-amsterdam/events/314857650/) about how to implement
 [loggingsucks.com](https://loggingsucks.com) in Go.

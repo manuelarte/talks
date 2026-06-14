@@ -20,18 +20,18 @@ import (
 	"go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/info"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/config"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/api/rest"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/db"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/logging"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/observability"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/info"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/config"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/api/rest"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/db"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/logging"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/observability"
 )
 
 func main() {
 	if err := run(); err != nil {
 		//nolint:sloglint // only logging in default this error
-		slog.Error("Application error", "error", err)
+		slog.Error("Application error", slog.Any("err", err))
 	}
 }
 
@@ -70,11 +70,11 @@ func run() error {
 		middleware.Logger,
 		middleware.Recoverer,
 		otelchi.Middleware(info.AppName, otelchi.WithChiRoutes(r)),
-		otelchimetric.NewRequestDurationMillis(baseCfg),
-		otelchimetric.NewRequestInFlight(baseCfg),
-		otelchimetric.NewResponseSizeBytes(baseCfg),
+		otelchimetric.NewServerRequestDuration(baseCfg),
+		otelchimetric.NewServerActiveRequests(baseCfg),
+		otelchimetric.NewServerResponseBodySize(baseCfg),
 		middleware.RequestID,
-		middleware.RealIP,
+		middleware.ClientIPFromRemoteAddr,
 		logging.AddLogger(logger),           // change for slog.Default() to not to send, or logger to send logs.
 		logging.AddLogEvent(slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
 		middleware.Timeout(headerTimeout),
