@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
 )
 
 var (

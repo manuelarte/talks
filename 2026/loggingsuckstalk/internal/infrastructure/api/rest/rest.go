@@ -7,10 +7,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/pub"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/paymentgateway"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/services"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/pub"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/paymentgateway"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/services"
 )
 
 type Rest struct {

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -11,12 +12,12 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/httperrors"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/pub"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/logging"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/observability"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/paymentgateway"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/httperrors"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/pub"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/logging"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/observability"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/paymentgateway"
 )
 
 type MoneyTransferService struct {
@@ -71,16 +72,19 @@ func (s *MoneyTransferService) Transfer(
 	)
 
 	if _, ok := s.cache[idempotenceKey]; ok {
-		logger.InfoContext(ctx, "Money Transfer already processed")
+		logger.InfoContext(ctx, fmt.Sprintf("Money Transfer (%q) already processed", idempotenceKey))
 
 		return nil
 	}
 
-	logger.InfoContext(ctx, "New money transfer request received")
+	logger.InfoContext(ctx,
+		fmt.Sprintf("New money transfer from %q to %q with idempotenceKey %s request received",
+			giverID, receiverID, idempotenceKey),
+	)
 
 	moneyTransfer := domain.NewMoneyTransfer(idempotenceKey, giverID, receiverID, amount)
 
-	logger.InfoContext(ctx, "[PaymentGateway] Processing money transfer")
+	logger.InfoContext(ctx, fmt.Sprintf("[PaymentGateway]: Processing money transfer, key=%q", idempotenceKey))
 
 	ctx, cancelFn := context.WithTimeout(ctx, 3*time.Second)
 	defer cancelFn()
@@ -122,7 +126,10 @@ func (s *MoneyTransferService) Transfer(
 
 		switch {
 		case errors.Is(err, paymentgateway.ErrNotEnoughSaldo):
-			logger.WarnContext(ctx, "[PaymentGateway]: Validation error", slog.Any("err", err))
+			logger.WarnContext(
+				ctx,
+				fmt.Sprintf("[PaymentGateway]: Validation error, key=%q, err=%q", idempotenceKey, err),
+			)
 			logging.AddField(ctx, "paymentGatewayError", paymentgateway.ErrNotEnoughSaldo)
 
 			return httperrors.ValidationError{
@@ -130,7 +137,10 @@ func (s *MoneyTransferService) Transfer(
 				Message: "Not enough saldo",
 			}
 		default:
-			logger.ErrorContext(ctx, "[PaymentGateway]: Internal server error", slog.Any("err", err))
+			logger.ErrorContext(
+				ctx,
+				fmt.Sprintf("[PaymentGateway]: Internal server error, key=%q, err=%q", idempotenceKey, err),
+			)
 			logging.AddField(ctx, "paymentGatewayError", err.Error())
 
 			return httperrors.InternalServerError{
@@ -141,15 +151,22 @@ func (s *MoneyTransferService) Transfer(
 	}
 
 	logging.AddField(ctx, "paymentGateway", "success")
-	logger.InfoContext(ctx, "[PaymentGateway]: Money transfer processed")
-	// sending sent
+	logger.InfoContext(
+		ctx,
+		fmt.Sprintf("[PaymentGateway]: Money transfer processed, key=%q", idempotenceKey),
+	)
+
 	err = s.pub.PublishMoneyTransfer(moneyTransfer)
 	if err != nil {
-		logger.ErrorContext(ctx, "Failed to publish money transfer event", slog.Any("err", err))
+		logger.ErrorContext(
+			ctx,
+			fmt.Sprintf("Failed to publish money transfer event, key=%q", idempotenceKey),
+			slog.Any("err", err),
+		)
 		logging.AddField(ctx, "kafkaEvent", "error")
 		logging.AddField(ctx, "kafkaEventError", err.Error())
 	} else {
-		logger.InfoContext(ctx, "Money transferred event sent")
+		logger.InfoContext(ctx, fmt.Sprintf("Money transferred event sent, key=%q", idempotenceKey))
 		logging.AddField(ctx, "kafkaEvent", "success")
 	}
 
@@ -165,7 +182,7 @@ func (s *MoneyTransferService) Transfer(
 		logging.AddField(ctx, "accountsUpdated", "error")
 		logging.AddField(ctx, "accountsUpdatedError", errUpdateAmounts.Error())
 	} else {
-		logger.InfoContext(ctx, "Accounts updated")
+		logger.InfoContext(ctx, fmt.Sprintf("Accounts updated for key=%q", idempotenceKey))
 		logging.AddField(ctx, "accountsUpdated", "success")
 	}
 

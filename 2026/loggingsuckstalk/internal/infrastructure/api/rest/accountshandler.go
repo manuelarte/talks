@@ -12,12 +12,12 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/domain"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/httperrors"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/logging"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/observability"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/pagination"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/services"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/domain"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/httperrors"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/logging"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/observability"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/pagination"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/services"
 )
 
 // accountsHandler handle the account endpoints.

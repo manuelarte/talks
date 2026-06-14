@@ -6,7 +6,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/info"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/info"
 )
 
 //nolint:gochecknoglobals // Context key used for tracing.

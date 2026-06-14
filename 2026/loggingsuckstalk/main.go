@@ -20,12 +20,12 @@ import (
 	"go.opentelemetry.io/otel/sdk/log"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 
-	"codeberg.org/manuelarte/loggingsuckstalk/info"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/config"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/api/rest"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/infrastructure/db"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/logging"
-	"codeberg.org/manuelarte/loggingsuckstalk/internal/observability"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/info"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/config"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/api/rest"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/infrastructure/db"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/logging"
+	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/observability"
 )
 
 func main() {
