@@ -64,12 +64,7 @@ func (s *MoneyTransferService) Transfer(
 		))
 	defer span.End()
 
-	logger := logging.FromContext(ctx).With(
-		slog.String("idempotenceKey", idempotenceKey.String()),
-		slog.String("giverID", giverID.String()),
-		slog.String("receiverID", receiverID.String()),
-		slog.String("amount", amount.String()),
-	)
+	logger := logging.FromContext(ctx)
 
 	if _, ok := s.cache[idempotenceKey]; ok {
 		logger.InfoContext(ctx, fmt.Sprintf("Money Transfer (%q) already processed", idempotenceKey))
@@ -139,7 +134,7 @@ func (s *MoneyTransferService) Transfer(
 		default:
 			logger.ErrorContext(
 				ctx,
-				fmt.Sprintf("[PaymentGateway]: Internal server error, key=%q, err=%q", idempotenceKey, err),
+				fmt.Sprintf("[PaymentGateway]: error %q, key=%q", err, idempotenceKey),
 			)
 			logging.AddField(ctx, "paymentGatewayError", err.Error())
 
