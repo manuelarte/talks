@@ -89,12 +89,11 @@ func (s *MoneyTransferService) Transfer(
 
 	logger.InfoContext(ctx, fmt.Sprintf("[PaymentGateway]: Processing money transfer, key=%q", idempotenceKey))
 
-	errTimeout := errors.New("payment gateway timeout")
-	ctx, cancelFn := context.WithTimeout(ctx, 3*time.Second)
+	ctxPayment, cancelFn := context.WithTimeout(ctx, 3*time.Second)
 	defer cancelFn()
 
 	pgStartTime := time.Now()
-	response, err := s.paymentClient.Transfer(ctx, moneyTransferToTransferRequest(moneyTransfer))
+	response, err := s.paymentClient.Transfer(ctxPayment, moneyTransferToTransferRequest(moneyTransfer))
 	pgElapsedMs := time.Since(pgStartTime) / 1_000_000
 	logging.AddField(ctx, "paymentGatewayElapsed_ms", pgElapsedMs)
 
@@ -102,16 +101,10 @@ func (s *MoneyTransferService) Transfer(
 		logging.AddField(ctx, "paymentGateway", "error")
 
 		switch {
-		case errors.Is(err, context.DeadlineExceeded):
-			logger.ErrorContext(
-				ctx,
-				fmt.Sprintf("[PaymentGateway]: Timeout, key=%q, err=%q", idempotenceKey, errTimeout),
-			)
-			logging.AddField(ctx, "paymentGatewayError", errTimeout)
 		case errors.Is(err, paymentgateway.ErrNotEnoughSaldo):
 			logger.ErrorContext(
 				ctx,
-				fmt.Sprintf("[PaymentGateway]: Validation error, key=%q, err=%q", idempotenceKey, err),
+				fmt.Sprintf("[PaymentGateway]: error %q, key=%q", err, idempotenceKey),
 			)
 			logging.AddField(ctx, "paymentGatewayError", paymentgateway.ErrNotEnoughSaldo)
 
