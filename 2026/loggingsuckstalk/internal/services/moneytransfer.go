@@ -196,5 +196,6 @@ func (c *cache) get(key domain.IdempotenceKey) bool {
 func (c *cache) set(key domain.IdempotenceKey) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+
 	c.c[key] = struct{}{}
 }

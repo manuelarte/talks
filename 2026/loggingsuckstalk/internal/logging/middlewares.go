@@ -48,14 +48,16 @@ func AddLogEvent(baseLogger *slog.Logger) func(http.Handler) http.Handler {
 
 					return
 				}
-				if le.fields["paymentGatewayError"] != nil || le.fields["kafkaEventError"] != nil || le.fields["accountsUpdatedError"] != nil {
+
+				if le.fields["paymentGatewayError"] != nil ||
+					le.fields["kafkaEventError"] != nil ||
+					le.fields["accountsUpdatedError"] != nil {
 					baseLogger.WarnContext(r.Context(), "Transfer completed with error", le.mapToArgs()...)
 				} else {
 					baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
 				}
 
-				//nolint:contextcheck // bug in contextcheck
-				//baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
+				// baseLogger.InfoContext(r.Context(), "Transfer completed", le.mapToArgs()...)
 			}
 		})
 	}

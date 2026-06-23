@@ -4,6 +4,7 @@ package paymentgateway
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/rand/v2"
 	"sync"
 	"time"
@@ -74,10 +75,11 @@ func NewClient(repo domain.AccountRepository) *Client {
 func (c *Client) Transfer(ctx context.Context, request TransferRequest) (TransferResponse, error) {
 	timeToReplyMS := normalBetween(500, 6000, 2000, 1000)
 	delay := time.NewTimer(time.Duration(timeToReplyMS * float64(time.Millisecond)))
+
 	for {
 		select {
 		case <-ctx.Done():
-			return TransferResponse{}, ctx.Err()
+			return TransferResponse{}, fmt.Errorf("timeout: %w", ctx.Err())
 		case <-delay.C:
 			if response, ok := c.cache.get(request.IdempotenceKey); ok {
 				return response, nil
