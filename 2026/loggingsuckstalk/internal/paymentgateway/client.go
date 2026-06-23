@@ -46,7 +46,7 @@ type (
 	}
 )
 
-func (c *cache) Get(key uuid.UUID) (TransferResponse, bool) {
+func (c *cache) get(key uuid.UUID) (TransferResponse, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -55,7 +55,7 @@ func (c *cache) Get(key uuid.UUID) (TransferResponse, bool) {
 	return val, ok
 }
 
-func (c *cache) Set(key uuid.UUID, val TransferResponse) {
+func (c *cache) set(key uuid.UUID, val TransferResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -79,7 +79,7 @@ func (c *Client) Transfer(ctx context.Context, request TransferRequest) (Transfe
 		case <-ctx.Done():
 			return TransferResponse{}, ctx.Err()
 		case <-delay.C:
-			if response, ok := c.cache.Get(request.IdempotenceKey); ok {
+			if response, ok := c.cache.get(request.IdempotenceKey); ok {
 				return response, nil
 			}
 
@@ -107,7 +107,7 @@ func (c *Client) Transfer(ctx context.Context, request TransferRequest) (Transfe
 				ReceiverAmount:    decimal.RequireFromString(receiver.Amount().String()).Add(request.Amount),
 				AmountTransferred: decimal.RequireFromString(request.Amount.String()),
 			}
-			c.cache.Set(request.IdempotenceKey, tr)
+			c.cache.set(request.IdempotenceKey, tr)
 
 			return tr, nil
 		}
