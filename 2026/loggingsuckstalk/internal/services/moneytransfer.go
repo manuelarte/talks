@@ -113,8 +113,8 @@ func (s *MoneyTransferService) Transfer(
 		err = errTimeout
 	}
 
-	pgElapsed := time.Since(pgStartTime)
-	logging.AddField(ctx, "paymentGatewayElapsed", pgElapsed)
+	pgElapsedMs := time.Since(pgStartTime) / 1_000_000
+	logging.AddField(ctx, "paymentGatewayElapsed_ms", pgElapsedMs)
 
 	if err != nil {
 		logging.AddField(ctx, "paymentGateway", "error")

@@ -165,6 +165,7 @@ func AddLogEvent(baseLogger *slog.Logger) func(http.Handler) http.Handler {
         r = r.WithContext(context.WithValue(r.Context(), logEventKey{}, le))
         next.ServeHTTP(w, r)
         // log event
+		le.Log()
         ...
     }
 }
