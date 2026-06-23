@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -20,12 +21,19 @@ import (
 	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/paymentgateway"
 )
 
-type MoneyTransferService struct {
-	cache         map[domain.IdempotenceKey]struct{}
-	paymentClient *paymentgateway.Client
-	repo          domain.AccountRepository
-	pub           pub.Pub
-}
+type (
+	MoneyTransferService struct {
+		cache         *cache
+		paymentClient *paymentgateway.Client
+		repo          domain.AccountRepository
+		pub           pub.Pub
+	}
+
+	cache struct {
+		mu sync.RWMutex
+		c  map[domain.IdempotenceKey]struct{}
+	}
+)
 
 func NewMoneyTransferService(
 	repo domain.AccountRepository,
@@ -33,7 +41,7 @@ func NewMoneyTransferService(
 	pub pub.Pub,
 ) MoneyTransferService {
 	return MoneyTransferService{
-		cache:         make(map[domain.IdempotenceKey]struct{}),
+		cache:         newCache(),
 		repo:          repo,
 		paymentClient: paymentClient,
 		pub:           pub,
@@ -66,7 +74,7 @@ func (s *MoneyTransferService) Transfer(
 
 	logger := logging.FromContext(ctx)
 
-	if _, ok := s.cache[idempotenceKey]; ok {
+	if s.cache.get(idempotenceKey) {
 		logger.InfoContext(ctx, fmt.Sprintf("Money Transfer (%q) already processed", idempotenceKey))
 
 		return nil
@@ -81,38 +89,12 @@ func (s *MoneyTransferService) Transfer(
 
 	logger.InfoContext(ctx, fmt.Sprintf("[PaymentGateway]: Processing money transfer, key=%q", idempotenceKey))
 
+	errTimeout := errors.New("payment gateway timeout")
 	ctx, cancelFn := context.WithTimeout(ctx, 3*time.Second)
 	defer cancelFn()
 
-	type transferResult struct {
-		response paymentgateway.TransferResponse
-		err      error
-	}
-
-	resultChan := make(chan transferResult, 1)
-
 	pgStartTime := time.Now()
-
-	go func() {
-		response, err := s.paymentClient.Transfer(ctx, moneyTransferToTransferRequest(moneyTransfer))
-		resultChan <- transferResult{response, err}
-	}()
-
-	errTimeout := errors.New("payment gateway timeout")
-
-	var (
-		response paymentgateway.TransferResponse
-		err      error
-	)
-
-	select {
-	case result := <-resultChan:
-		response = result.response
-		err = result.err
-	case <-ctx.Done():
-		err = errTimeout
-	}
-
+	response, err := s.paymentClient.Transfer(ctx, moneyTransferToTransferRequest(moneyTransfer))
 	pgElapsedMs := time.Since(pgStartTime) / 1_000_000
 	logging.AddField(ctx, "paymentGatewayElapsed_ms", pgElapsedMs)
 
@@ -120,8 +102,14 @@ func (s *MoneyTransferService) Transfer(
 		logging.AddField(ctx, "paymentGateway", "error")
 
 		switch {
+		case errors.Is(err, context.DeadlineExceeded):
+			logger.ErrorContext(
+				ctx,
+				fmt.Sprintf("[PaymentGateway]: Timeout, key=%q, err=%q", idempotenceKey, errTimeout),
+			)
+			logging.AddField(ctx, "paymentGatewayError", errTimeout)
 		case errors.Is(err, paymentgateway.ErrNotEnoughSaldo):
-			logger.WarnContext(
+			logger.ErrorContext(
 				ctx,
 				fmt.Sprintf("[PaymentGateway]: Validation error, key=%q, err=%q", idempotenceKey, err),
 			)
@@ -173,7 +161,7 @@ func (s *MoneyTransferService) Transfer(
 		domain.MustMoney(response.ReceiverAmount.String()),
 	)
 	if errUpdateAmounts != nil {
-		logger.WarnContext(ctx, "Failed to update accounts amounts", slog.Any("err", errUpdateAmounts))
+		logger.WarnContext(ctx, fmt.Sprintf("Failed to update accounts amounts, err %q", errUpdateAmounts))
 		logging.AddField(ctx, "accountsUpdated", "error")
 		logging.AddField(ctx, "accountsUpdatedError", errUpdateAmounts.Error())
 	} else {
@@ -181,7 +169,7 @@ func (s *MoneyTransferService) Transfer(
 		logging.AddField(ctx, "accountsUpdated", "success")
 	}
 
-	s.cache[idempotenceKey] = struct{}{}
+	s.cache.set(idempotenceKey)
 
 	return nil
 }
@@ -195,4 +183,25 @@ func moneyTransferToTransferRequest(moneyTransfer domain.MoneyTransfer) paymentg
 		ReceiverID:     uuid.UUID(moneyTransfer.ReceiverID()),
 		Amount:         decimalAmount,
 	}
+}
+
+func newCache() *cache {
+	return &cache{
+		c: make(map[domain.IdempotenceKey]struct{}),
+	}
+}
+
+func (c *cache) get(key domain.IdempotenceKey) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	_, ok := c.c[key]
+
+	return ok
+}
+
+func (c *cache) set(key domain.IdempotenceKey) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.c[key] = struct{}{}
 }

@@ -72,41 +72,46 @@ func NewClient(repo domain.AccountRepository) *Client {
 }
 
 func (c *Client) Transfer(ctx context.Context, request TransferRequest) (TransferResponse, error) {
-	if response, ok := c.cache.Get(request.IdempotenceKey); ok {
-		return response, nil
+	timeToReplyMS := normalBetween(500, 6000, 2000, 1000)
+	delay := time.NewTimer(time.Duration(timeToReplyMS * float64(time.Millisecond)))
+	for {
+		select {
+		case <-ctx.Done():
+			return TransferResponse{}, ctx.Err()
+		case <-delay.C:
+			if response, ok := c.cache.Get(request.IdempotenceKey); ok {
+				return response, nil
+			}
+
+			giver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.GiverID))
+			if err != nil {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			receiver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.ReceiverID))
+			if err != nil {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			if !giver.CanTransfer(domain.MustMoney(request.Amount.String())) {
+				return TransferResponse{}, ErrNotEnoughSaldo
+			}
+
+			n := rand.IntN(10)
+			if n > 7 {
+				return TransferResponse{}, ErrInternalError
+			}
+
+			tr := TransferResponse{
+				GiverAmount:       decimal.RequireFromString(giver.Amount().String()).Sub(request.Amount),
+				ReceiverAmount:    decimal.RequireFromString(receiver.Amount().String()).Add(request.Amount),
+				AmountTransferred: decimal.RequireFromString(request.Amount.String()),
+			}
+			c.cache.Set(request.IdempotenceKey, tr)
+
+			return tr, nil
+		}
 	}
-
-	giver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.GiverID))
-	if err != nil {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	receiver, err := c.mockRepo.GetOne(ctx, domain.AccountID(request.ReceiverID))
-	if err != nil {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	if !giver.CanTransfer(domain.MustMoney(request.Amount.String())) {
-		return TransferResponse{}, ErrNotEnoughSaldo
-	}
-
-	// simulate it takes time
-	sleepMilis := normalBetween(400, 6000, 2000, 1000)
-	time.Sleep(time.Duration(sleepMilis) * time.Millisecond)
-
-	n := rand.IntN(10)
-	if n > 7 {
-		return TransferResponse{}, ErrInternalError
-	}
-
-	tr := TransferResponse{
-		GiverAmount:       decimal.RequireFromString(giver.Amount().String()).Sub(request.Amount),
-		ReceiverAmount:    decimal.RequireFromString(receiver.Amount().String()).Add(request.Amount),
-		AmountTransferred: decimal.RequireFromString(request.Amount.String()),
-	}
-	c.cache.Set(request.IdempotenceKey, tr)
-
-	return tr, nil
 }
 
 func normalBetween(minValue, maxValue, mean, stddev float64) float64 {

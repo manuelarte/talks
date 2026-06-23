@@ -75,8 +75,8 @@ func run() error {
 		otelchimetric.NewResponseSizeBytes(baseCfg),
 		middleware.RequestID,
 		middleware.RealIP,
-		logging.AddLogger(slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
-		logging.AddLogEvent(logger),       // change for slog.Default() to not to send, or logger to send logs.
+		logging.AddLogger(logger),           // change for slog.Default() to not to send, or logger to send logs.
+		logging.AddLogEvent(slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
 		middleware.Timeout(headerTimeout),
 	)
 
