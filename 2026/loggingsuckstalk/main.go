@@ -70,11 +70,11 @@ func run() error {
 		middleware.Logger,
 		middleware.Recoverer,
 		otelchi.Middleware(info.AppName, otelchi.WithChiRoutes(r)),
-		otelchimetric.NewRequestDurationMillis(baseCfg),
-		otelchimetric.NewRequestInFlight(baseCfg),
-		otelchimetric.NewResponseSizeBytes(baseCfg),
+		otelchimetric.NewServerRequestDuration(baseCfg),
+		otelchimetric.NewServerActiveRequests(baseCfg),
+		otelchimetric.NewServerResponseBodySize(baseCfg),
 		middleware.RequestID,
-		middleware.RealIP,
+		middleware.ClientIPFromRemoteAddr,
 		logging.AddLogger(logger),           // change for slog.Default() to not to send, or logger to send logs.
 		logging.AddLogEvent(slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
 		middleware.Timeout(headerTimeout),
