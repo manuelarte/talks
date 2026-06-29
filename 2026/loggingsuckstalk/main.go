@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"time"
 
-	"codeberg.org/manuelarte/logevent"
-	logeventhttp "codeberg.org/manuelarte/logevent/middlewares/http"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/manuelarte/logevent"
+	logeventhttp "github.com/manuelarte/logevent/middlewares/http"
 	"github.com/riandyrn/otelchi"
 	otelchimetric "github.com/riandyrn/otelchi/metric"
 	"go.opentelemetry.io/contrib/bridges/otelslog"

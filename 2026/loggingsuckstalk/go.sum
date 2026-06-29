@@ -1,5 +1,3 @@
-codeberg.org/manuelarte/logevent v0.0.0-20260629114226-9920c295e505 h1:kdt9tyBPdro+TCSd2MqhAroF4g4xEgI8nulyB+2/sw8=
-codeberg.org/manuelarte/logevent v0.0.0-20260629114226-9920c295e505/go.mod h1:c7T4OcQjmx8vpriqV/iZDXufu8EN65J87Rr89c1QUgs=
 github.com/RaveNoX/go-jsoncommentstrip v1.0.0/go.mod h1:78ihd09MekBnJnxpICcwzCMzGrKSKYe4AqU6PDYYpjk=
 github.com/apapsch/go-jsonmerge/v2 v2.0.0 h1:axGnT1gRIfimI7gJifB699GoE/oq+F2MU7Dml6nw9rQ=
 github.com/apapsch/go-jsonmerge/v2 v2.0.0/go.mod h1:lvDnEdqiQrp0O42VQGgmlKpxL1AP2+08jFMw88y4klk=
@@ -73,6 +71,8 @@ github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 github.com/manuelarte/gospecpaths v0.1.0 h1:x78x8UmBGNpcSfWw72ISza2MuaZRQ0a9Xx1h4zHx3UE=
 github.com/manuelarte/gospecpaths v0.1.0/go.mod h1:zNqP/Wm4MqL3Nlfz7Xx5alPPOkXFUdng7AftmU2ySTw=
+github.com/manuelarte/logevent v0.0.1 h1:TMIUW5cBBjoiUE8mvqerB3P88ocob0DTJXSSgmsqB0U=
+github.com/manuelarte/logevent v0.0.1/go.mod h1:26s1o2M5JLR5QUnAP9+dI+N1N/NaHvEqhqdMlNBLgt0=
 github.com/mattn/go-sqlite3 v1.14.45 h1:6KA/spDguL3KV8rnybG7ezSaE4SeMR3KC9VbUoAQaIk=
 github.com/mattn/go-sqlite3 v1.14.45/go.mod h1:pjEuOr8IwzLJP2MfGeTb0A35jauH+C2kbHKBr7yXKVQ=
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq1c1nUAm88MOHcQC9l5mIlSMApZMrHA=

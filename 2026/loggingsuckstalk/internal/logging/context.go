@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	"codeberg.org/manuelarte/logevent"
-	"codeberg.org/manuelarte/logevent/middlewares"
+	"github.com/manuelarte/logevent"
+	"github.com/manuelarte/logevent/middlewares"
 )
 
 type (

@@ -32,7 +32,6 @@ require (
 )
 
 require (
-	codeberg.org/manuelarte/logevent v0.0.0-20260629114226-9920c295e505 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -48,6 +47,7 @@ require (
 	github.com/go-openapi/swag/jsonname v0.26.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0 // indirect
 	github.com/manuelarte/gospecpaths v0.1.0 // indirect
+	github.com/manuelarte/logevent v0.0.1
 	github.com/mattn/go-sqlite3 v1.14.45 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oapi-codegen/oapi-codegen/v2 v2.7.1 // indirect
