@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/manuelarte/logevent"
 	"github.com/manuelarte/logevent/middlewares"
 )
 
@@ -23,19 +22,19 @@ func (le *GenericLogEvent) AddField(field string, value any) {
 	le.fields[field] = value
 }
 
-func (le *GenericLogEvent) Log(_ context.Context, li logevent.LogInterface) {
+func (le *GenericLogEvent) Log(ctx context.Context, logger *slog.Logger) {
 	if le.containsError() {
 		//nolint:contextcheck // bug in contextcheck
-		li.Error("Transfer failed", le.mapToArgs()...)
+		logger.ErrorContext(ctx, "Transfer failed", le.mapToArgs()...)
 
 		return
 	}
 	if le.fields["paymentGatewayError"] != nil ||
 		le.fields["kafkaEventError"] != nil ||
 		le.fields["accountsUpdatedError"] != nil {
-		li.Warn("Transfer completed with error", le.mapToArgs()...)
+		logger.WarnContext(ctx, "Transfer completed with error", le.mapToArgs()...)
 	} else {
-		li.Info("Transfer completed", le.mapToArgs()...)
+		logger.InfoContext(ctx, "Transfer completed", le.mapToArgs()...)
 	}
 }
 
