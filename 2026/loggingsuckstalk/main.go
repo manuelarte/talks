@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/manuelarte/logevent"
 	logeventhttp "github.com/manuelarte/logevent/middlewares/http"
 	"github.com/riandyrn/otelchi"
 	otelchimetric "github.com/riandyrn/otelchi/metric"
@@ -78,9 +77,7 @@ func run() error {
 		middleware.RequestID,
 		middleware.ClientIPFromRemoteAddr,
 		logging.AddLogger(logger),
-		logeventhttp.AddLogEventMiddleware(logging.GenericLogEvent{}, func(ctx context.Context) logevent.LogInterface {
-			return slog.Default()
-		}), // change for slog.Default() to not to send, or logger to send logs.
+		logeventhttp.AddLogEventMiddleware(logging.GenericLogEvent{}, slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
 		middleware.Timeout(headerTimeout),
 	)
 
