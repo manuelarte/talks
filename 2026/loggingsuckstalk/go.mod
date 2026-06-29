@@ -32,6 +32,7 @@ require (
 )
 
 require (
+	codeberg.org/manuelarte/logevent v0.0.0-20260629114226-9920c295e505 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect

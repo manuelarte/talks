@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"time"
 
+	"codeberg.org/manuelarte/logevent"
+	logeventhttp "codeberg.org/manuelarte/logevent/middlewares/http"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/riandyrn/otelchi"
@@ -75,8 +77,10 @@ func run() error {
 		otelchimetric.NewServerResponseBodySize(baseCfg),
 		middleware.RequestID,
 		middleware.ClientIPFromRemoteAddr,
-		logging.AddLogger(logger),           // change for slog.Default() to not to send, or logger to send logs.
-		logging.AddLogEvent(slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
+		logging.AddLogger(logger),
+		logeventhttp.AddLogEventMiddleware(logging.GenericLogEvent{}, func(ctx context.Context) logevent.LogInterface {
+			return slog.Default()
+		}), // change for slog.Default() to not to send, or logger to send logs.
 		middleware.Timeout(headerTimeout),
 	)
 
