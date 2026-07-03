@@ -55,7 +55,7 @@ func NewMoneyTransferService(
 //   - It updates the accounts.
 //
 // Note: In a real production environment this would not be the way to implement it,
-// since you need to take into account that each steps can fail. Then patterns like the Outpux Pattern
+// since you need to take into account that each step can fail. Then patterns like the Outpux Pattern
 // could be implemented to make sure that the event is at least once delivered.
 // and the same with the account update.
 func (s *MoneyTransferService) Transfer(
@@ -95,6 +95,7 @@ func (s *MoneyTransferService) Transfer(
 	pgStartTime := time.Now()
 	response, err := s.paymentClient.Transfer(ctxPayment, moneyTransferToTransferRequest(moneyTransfer))
 	pgElapsedMs := time.Since(pgStartTime) / 1_000_000
+	logger.DebugContext(ctx, fmt.Sprintf("[PaymentGateway] got response in %dms", pgElapsedMs))
 	logging.AddField(ctx, "paymentGatewayElapsed_ms", pgElapsedMs)
 
 	if err != nil {
