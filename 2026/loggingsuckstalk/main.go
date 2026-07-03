@@ -111,7 +111,7 @@ func setupOTelSDK(
 	ctx context.Context,
 	otelGRPCEndpoint string,
 ) (func(context.Context) error, *sdkmetric.MeterProvider, *log.LoggerProvider, error) {
-	hostname := "manuelarte-ING"
+	hostname := "manuelarte"
 	shutdownFuncs := make([]func(context.Context) error, 3)
 
 	var err error
