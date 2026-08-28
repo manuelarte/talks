@@ -11,7 +11,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	logeventhttp "github.com/manuelarte/logevent/middlewares/http"
+	logeventhttp "github.com/manuelarte/logevent/mw/http"
 	"github.com/riandyrn/otelchi"
 	otelchimetric "github.com/riandyrn/otelchi/metric"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
@@ -77,7 +77,10 @@ func run() error {
 		middleware.RequestID,
 		middleware.ClientIPFromRemoteAddr,
 		logging.AddLogger(logger),
-		logeventhttp.AddLogEventMiddleware(logging.GenericLogEvent{}, slog.Default()), // change for slog.Default() to not to send, or logger to send logs.
+		logeventhttp.AddLogEventMiddleware(
+			logging.GenericLogEvent{},
+			slog.Default(), // change for slog.Default() to not send, or logger to send logs.
+		),
 		middleware.Timeout(headerTimeout),
 	)
 

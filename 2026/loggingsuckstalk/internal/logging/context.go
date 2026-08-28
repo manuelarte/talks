@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/manuelarte/logevent/middlewares"
+	"github.com/manuelarte/logevent"
 )
 
 type (
@@ -19,16 +19,17 @@ func (le *GenericLogEvent) AddField(field string, value any) {
 	if le.fields == nil {
 		le.fields = make(map[string]any)
 	}
+
 	le.fields[field] = value
 }
 
 func (le *GenericLogEvent) Log(ctx context.Context, logger *slog.Logger) {
 	if le.containsError() {
-		//nolint:contextcheck // bug in contextcheck
 		logger.ErrorContext(ctx, "Transfer failed", le.mapToArgs()...)
 
 		return
 	}
+
 	if le.fields["paymentGatewayError"] != nil ||
 		le.fields["kafkaEventError"] != nil ||
 		le.fields["accountsUpdatedError"] != nil {
@@ -67,7 +68,7 @@ func withLogger(ctx context.Context, logger *slog.Logger) context.Context {
 }
 
 func AddField(ctx context.Context, key string, value any) {
-	_ = middlewares.UpdateLogEvent(ctx, func(le *GenericLogEvent) {
+	_ = logevent.UpdateLogEvent(ctx, func(le *GenericLogEvent) {
 		le.AddField(key, value)
 	})
 }
