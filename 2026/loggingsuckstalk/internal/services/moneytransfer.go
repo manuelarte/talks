@@ -69,7 +69,8 @@ func (s *MoneyTransferService) Transfer(
 		ctx, "MoneyTransferService.Transfer",
 		trace.WithAttributes(
 			attribute.String("idempotenceKey", idempotenceKey.String()),
-		))
+		),
+	)
 	defer span.End()
 
 	logger := logging.FromContext(ctx)

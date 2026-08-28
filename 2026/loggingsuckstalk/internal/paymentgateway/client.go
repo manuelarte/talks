@@ -74,6 +74,7 @@ func NewClient(repo domain.AccountRepository) *Client {
 
 func (c *Client) Transfer(ctx context.Context, request TransferRequest) (TransferResponse, error) {
 	timeToReplyMS := normalBetween(500, 6000, 2000, 1000)
+
 	delay := time.NewTimer(time.Duration(timeToReplyMS * float64(time.Millisecond)))
 	defer delay.Stop()
 

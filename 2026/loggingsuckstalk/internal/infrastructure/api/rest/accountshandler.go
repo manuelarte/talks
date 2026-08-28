@@ -36,7 +36,8 @@ func (a accountsHandler) TransferMoney(
 			attribute.String("accountGiver", request.AccountGiver.String()),
 			attribute.String("accountReceiver", request.AccountReceiver.String()),
 			attribute.String("amount", request.Body.Amount),
-		))
+		),
+	)
 	defer span.End()
 
 	if request.Params.IdempotencyKey == nil {
@@ -50,7 +51,8 @@ func (a accountsHandler) TransferMoney(
 				Detail: msg,
 				Status: http.StatusBadRequest,
 				Title:  "Validation error",
-			}), nil
+			},
+		), nil
 	}
 
 	idempotenceKey := *request.Params.IdempotencyKey
@@ -78,7 +80,8 @@ func (a accountsHandler) TransferMoney(
 					Detail: ve.Message,
 					Status: http.StatusBadRequest,
 					Title:  ve.Title,
-				}), nil
+				},
+			), nil
 		}
 
 		if ise, ok := errors.AsType[httperrors.InternalServerError](err); ok {
@@ -91,7 +94,8 @@ func (a accountsHandler) TransferMoney(
 					Detail: ise.Message,
 					Status: 500,
 					Title:  ise.Title,
-				}), nil
+				},
+			), nil
 		}
 	}
 
