@@ -78,7 +78,7 @@ func run() error {
 		middleware.ClientIPFromRemoteAddr,
 		logging.AddLogger(logger),
 		logeventhttp.AddLogEventMiddleware(
-			logging.GenericLogEvent{},
+			logging.TransferLogEvent{},
 			slog.Default(), // change for slog.Default() to not send, or logger to send logs.
 		),
 		middleware.Timeout(headerTimeout),

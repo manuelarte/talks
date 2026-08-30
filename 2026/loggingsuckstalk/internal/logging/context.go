@@ -7,15 +7,17 @@ import (
 	"github.com/manuelarte/logevent"
 )
 
+var _ logevent.LogEvent[*slog.Logger] = new(TransferLogEvent)
+
 type (
 	loggerKey struct{}
 
-	GenericLogEvent struct {
+	TransferLogEvent struct {
 		fields map[string]any
 	}
 )
 
-func (le *GenericLogEvent) AddField(field string, value any) {
+func (le *TransferLogEvent) AddField(field string, value any) {
 	if le.fields == nil {
 		le.fields = make(map[string]any)
 	}
@@ -23,7 +25,7 @@ func (le *GenericLogEvent) AddField(field string, value any) {
 	le.fields[field] = value
 }
 
-func (le *GenericLogEvent) Log(ctx context.Context, logger *slog.Logger) {
+func (le *TransferLogEvent) Log(ctx context.Context, logger *slog.Logger) {
 	if le.containsError() {
 		logger.ErrorContext(ctx, "Transfer failed", le.mapToArgs()...)
 
@@ -39,11 +41,11 @@ func (le *GenericLogEvent) Log(ctx context.Context, logger *slog.Logger) {
 	}
 }
 
-func (le *GenericLogEvent) containsError() bool {
+func (le *TransferLogEvent) containsError() bool {
 	return le.fields["error"] != nil
 }
 
-func (le *GenericLogEvent) mapToArgs() []any {
+func (le *TransferLogEvent) mapToArgs() []any {
 	args := make([]any, 0, len(le.fields))
 	for k, v := range le.fields {
 		args = append(args, slog.Any(k, v))
@@ -68,7 +70,7 @@ func withLogger(ctx context.Context, logger *slog.Logger) context.Context {
 }
 
 func AddField(ctx context.Context, key string, value any) {
-	_ = logevent.UpdateLogEvent(ctx, func(le *GenericLogEvent) {
+	_ = logevent.UpdateLogEvent(ctx, func(le *TransferLogEvent) {
 		le.AddField(key, value)
 	})
 }
