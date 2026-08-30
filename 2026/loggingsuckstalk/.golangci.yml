@@ -58,6 +58,19 @@ linters:
 
   settings:
     # keep-sorted start
+    custom:
+      godddlint:
+        type: module
+        description: lint that follows the Domain Driven Design principles.
+      testcomments:
+        type: module
+        description: lint that follows standards described in TestComments.
+        settings:
+          table-driven-format:
+            type: map
+      structinit:
+        type: module
+        description: check struct's field initialization order matches struct's field declaration.
     cyclop:
       max-complexity: 30
       package-average: 10

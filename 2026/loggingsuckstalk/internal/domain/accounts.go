@@ -10,22 +10,27 @@ import (
 	"github.com/manuelarte/talks/2026/loggingsuckstalk/internal/pagination"
 )
 
-var _ Money = new(moneyDecimal)
+var (
+	_ Money = new(moneyDecimal)
+	_ error = new(MoneyParserError)
+)
 
 type (
 	AccountID uuid.UUID
 
-	//godddlint:valueObject
 	Money interface {
 		GreaterThan(other Money) bool
 		String() string
 	}
 
+	//godddlint:valueObject
+	//godddlint:disable:VOX001
 	moneyDecimal struct {
 		dec decimal.Decimal
 	}
 
 	//godddlint:entity
+	//go:structinit
 	Account struct {
 		id     AccountID
 		amount Money

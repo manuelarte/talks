@@ -10,6 +10,8 @@ type (
 	GiverID    AccountID
 	ReceiverID AccountID
 
+	//godddlint:valueObject
+	//go:structinit
 	MoneyTransfer struct {
 		idempotenceKey IdempotenceKey
 		giverID        GiverID
