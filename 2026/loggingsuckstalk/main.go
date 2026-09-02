@@ -85,7 +85,7 @@ func run() error {
 	)
 
 	repository := db.NewRepository(dbConn)
-	rest.Create(r, SwaggerUI, OpenAPI, repository)
+	rest.Create(r, OpenAPI, repository)
 
 	srvErr := make(chan error, 1)
 

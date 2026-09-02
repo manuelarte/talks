@@ -31,6 +31,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.44.0
 )
 
+require github.com/manuelarte/embeddedswagger v0.0.0-20260902214216-7f16fed9b4dc // indirect
+
 require (
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
