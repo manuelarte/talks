@@ -1,8 +1,6 @@
 package rest
 
 import (
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/manuelarte/embeddedswagger"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -18,16 +16,8 @@ type Rest struct {
 }
 
 func Create(r chi.Router, openAPI []byte, accountsRepository domain.AccountRepository) {
-	// Prometheus
 	r.Handle("/metrics", promhttp.Handler())
-
-	swaggerMux := http.NewServeMux()
-	_ = embeddedswagger.Add(embeddedswagger.Config{
-		OpenAPI: openAPI,
-	}, swaggerMux)
-	r.Handle("/docs", swaggerMux)
-	r.Handle("/swagger", swaggerMux)
-	r.Handle("/swagger/*", swaggerMux)
+	_ = embeddedswagger.Add(embeddedswagger.DefaultConfig(openAPI), r)
 
 	paymentClient := paymentgateway.NewClient(accountsRepository)
 	moneyTransferService := services.NewMoneyTransferService(accountsRepository, paymentClient, pub.Pub{})
