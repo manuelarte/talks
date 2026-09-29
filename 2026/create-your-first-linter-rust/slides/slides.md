@@ -110,77 +110,122 @@ hideInToc: true
 
 ---
 layout: center
-transition: slide-down
 hideInToc: true
 ---
 
 # Abstract Syntax Tree (AST)
 
+- TODO: In Go really simple
+- In Rust you have, AST, but you also have HIR and MIR, which are more complex and powerful
+
+---
+transition: slide-up
+hideInToc: true
 ---
 
-# What is Slidev?
+# Go
 
-Slidev is a slides maker and presenter designed for developers, consist of the following features
+```go
+package main
 
-- 📝 **Text-based** - focus on the content with Markdown, and then style them later
-- 🎨 **Themable** - themes can be shared and re-used as npm packages
-- 🧑‍💻 **Developer Friendly** - code highlighting, live coding with autocompletion
-- 🤹 **Interactive** - embed Vue components to enhance your expressions
-- 🎥 **Recording** - built-in recording and camera view
-- 📤 **Portable** - export to PDF, PPTX, PNGs, or even a hostable SPA
-- 🛠 **Hackable** - virtually anything that's possible on a webpage is possible in Slidev
-<br>
-<br>
+import "fmt"
 
-Read more about [Why Slidev?](https://sli.dev/guide/why)
-
-<!--
-You can have `style` tag in markdown to override the style for the current page.
-Learn more: https://sli.dev/features/slide-scope-style
--->
-
-<style>
-h1 {
-  background-color: #2B90B6;
-  background-image: linear-gradient(45deg, #4EC5D4 10%, #146b8c 20%);
-  background-size: 100%;
-  -webkit-background-clip: text;
-  -moz-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  -moz-text-fill-color: transparent;
+type User struct {
+    Name    string
+    Surname string
 }
-</style>
 
-<!--
-Here is another comment.
--->
+func main() {
+	u := User{Name: "John", Surname: "Doe"}
+	fmt.Printf("Hello, %+v!\n", u)
+}
+```
+
+---
+transition: slide-up
+hideInToc: true
+---
+
+# Go
+
+```plantuml
+@startwbs
+skinparam backgroundColor transparent
+skinparam monochrome reverse
+!option handwritten true
+
+* ast.File
+** ast.GenDecl
+*** ast.ImportSpec
+**** ast.BasicLit
+** ast.GenDecl
+*** ast.ValueSpec
+**** ast.Ident
+**** ast.BasicLit
+** ast.GenDecl
+*** ast.TypeSpec
+*** ast.StructType
+**** ast.FieldList
+***** ast.Field
+***** ast.Field
+** ast.FuncDecl
+*** ast.FuncType
+*** ast.FieldList
+**** ast.Field
+**** ast.Field
+** ...
+@endwbs
+```
+
+---
+transition: slide-up
+hideInToc: true
+---
+
+# Rust
+
+<v-click>
+<img src="/star-trek-desperate.avif">
+</v-click>
+
+---
+
+# Rust
+
+- AST
+- Mid-Level Intermediate Representation (MIR)
+- High-level Intermediate Representation (HIR)
 
 ---
 transition: slide-up
 level: 2
 ---
 
-# Navigation
+# Rust
 
-Hover on the bottom-left corner to see the navigation's controls panel, [learn more](https://sli.dev/guide/ui#navigation-bar)
+```rust
+fn main() {
+    let john = User::new("John", "Doe");
+    println!("Hello, {:?}!", john);
+}
 
-## Keyboard Shortcuts
+#[derive(Debug)]
+#[allow(dead_code)]
+struct User {
+    name: String,
+    surname: String,
+}
 
-|                                                     |                             |
-| --------------------------------------------------- | --------------------------- |
-| <kbd>right</kbd> / <kbd>space</kbd>                 | next animation or slide     |
-| <kbd>left</kbd>  / <kbd>shift</kbd><kbd>space</kbd> | previous animation or slide |
-| <kbd>up</kbd>                                       | previous slide              |
-| <kbd>down</kbd>                                     | next slide                  |
-
-<!-- https://sli.dev/guide/animations.html#click-animation -->
-<img
-  v-click
-  class="absolute -bottom-9 -left-7 w-80 opacity-50"
-  src="https://sli.dev/assets/arrow-bottom-left.svg"
-  alt=""
-/>
-<p v-after class="absolute bottom-23 left-45 opacity-30 transform -rotate-10">Here!</p>
+#[allow(dead_code)]
+impl User {
+    pub fn new(name: impl Into<String>, surname: impl Into<String>) -> Self {
+        User {
+            name: name.into(),
+            surname: surname.into(),
+        }
+    }
+}
+```
 
 ---
 layout: two-cols
