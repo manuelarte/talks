@@ -115,15 +115,15 @@ hideInToc: true
 
 # Abstract Syntax Tree (AST)
 
-- TODO: In Go really simple
-- In Rust you have, AST, but you also have HIR and MIR, which are more complex and powerful
-
 ---
 transition: slide-up
+layout: two-cols-header
 hideInToc: true
 ---
 
 # Go
+
+::left::
 
 ```go
 package main
@@ -141,12 +141,9 @@ func main() {
 }
 ```
 
----
-transition: slide-up
-hideInToc: true
----
+::right::
 
-# Go
+<v-click>
 
 ```plantuml
 @startwbs
@@ -159,21 +156,72 @@ skinparam monochrome reverse
 *** ast.ImportSpec
 **** ast.BasicLit
 ** ast.GenDecl
-*** ast.ValueSpec
-**** ast.Ident
-**** ast.BasicLit
-** ast.GenDecl
 *** ast.TypeSpec
 *** ast.StructType
-**** ast.FieldList
-***** ast.Field
-***** ast.Field
+**** ast.Field
+**** ast.Field
 ** ast.FuncDecl
-*** ast.FuncType
-*** ast.FieldList
-**** ast.Field
-**** ast.Field
-** ...
+*** ...
+@endwbs
+```
+
+</v-click>
+
+<style>
+.two-cols-header {
+  column-gap: 20px; /* Adjust the gap size as needed */
+}
+</style>
+
+---
+transition: slide-up
+layout: two-cols-header
+hideInToc: true
+---
+
+# Go Linter Example
+
+Report distinct `const` declarations
+
+::left::
+
+```go
+package main
+
+// ✅
+const foo = "foo"
+
+// ❌
+const john, doe = "john", 0 
+
+// ❌
+const (
+    bob = "bob"
+    alice = "alice"
+)
+```
+
+::right::
+
+```plantuml
+@startwbs
+skinparam backgroundColor transparent
+skinparam monochrome reverse
+!option handwritten true
+
+* ast.File
+** ast.GenDecl
+*** ast.ValueSpec
+**** ast.Ident
+** ast.GenDecl
+*** ast.ValueSpec
+**** ast.Ident
+**** ast.Ident
+** ast.GenDecl
+*** ast.ValueSpec
+**** ast.Ident
+*** ast.ValueSpec
+**** ast.Ident
 @endwbs
 ```
 
@@ -184,21 +232,18 @@ hideInToc: true
 
 # Rust
 
-<v-click>
+<div v-click v-click.hide="'2'" slidev-vclick-hidden>
 <img src="/star-trek-desperate.avif">
-</v-click>
+</div>
 
----
-
-# Rust
+<v-click at="2">
 
 - AST
 - Mid-Level Intermediate Representation (MIR)
 - High-level Intermediate Representation (HIR)
 
----
-transition: slide-up
-level: 2
+</v-click>
+
 ---
 
 # Rust
