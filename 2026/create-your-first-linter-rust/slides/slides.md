@@ -51,21 +51,6 @@ hideInToc: true
 </div>
 
 ---
-layout: center
-transition: fade-out
----
-
-<div class="slidev-vclick-target" v-click.fade-in>
-    <img src="/among_us.png">
-</div>
-
-<style>
-.slidev-vclick-target {
-  transition: opacity 5000ms ease-out;
-}
-</style>
-
----
 layout: image-right
 image: /qr-github-manuelarte.jpeg
 backgroundSize: 20em 60%
@@ -232,17 +217,18 @@ hideInToc: true
 
 # Rust
 
-<div v-click v-click.hide="'2'" slidev-vclick-hidden>
-<img src="/star-trek-desperate.avif">
+<div class="grid">
+  <div class="col-start-1 row-start-1" v-click v-click.hide="2">
+    <img src="/star-trek-desperate.avif">
+  </div>
+  <div class="col-start-1 row-start-1" v-click="2">
+    <ul>
+      <li>AST</li>
+      <li>Mid-Level Intermediate Representation (MIR)</li>
+      <li>High-level Intermediate Representation (HIR)</li>
+    </ul>
+  </div>
 </div>
-
-<v-click at="2">
-
-- AST
-- Mid-Level Intermediate Representation (MIR)
-- High-level Intermediate Representation (HIR)
-
-</v-click>
 
 ---
 
