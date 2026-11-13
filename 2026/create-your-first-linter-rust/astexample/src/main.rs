@@ -1,11 +1,8 @@
-fn main() {
-    let john = User::new("John", "Doe");
-    println!("Hello, {:?}!", john);
-}
+const FOO: &str = "foo";
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
-struct User {
+pub struct User {
     name: String,
     surname: String,
 }

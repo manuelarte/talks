@@ -5,7 +5,7 @@ theme: seriph
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
 # some information about your slides (markdown enabled)
-title: Welcome to Slidev
+title: Create Your First Linter in Rust
 info: |
   ## Slidev Starter Template
   Create Your First Linter in Rust.
@@ -146,7 +146,8 @@ skinparam monochrome reverse
 **** ast.Field
 **** ast.Field
 ** ast.FuncDecl
-*** ...
+*** ast.BlockStmt
+**** ...
 @endwbs
 ```
 
@@ -207,6 +208,7 @@ skinparam monochrome reverse
 **** ast.Ident
 *** ast.ValueSpec
 **** ast.Ident
+
 @endwbs
 ```
 
@@ -231,34 +233,74 @@ hideInToc: true
 </div>
 
 ---
+layout: two-cols-header
+---
 
 # Rust
+
+::left::
 
 <div class="text-sm">
 
 ```rust
-fn main() {
-    let john = User::new("John", "Doe");
-    println!("Hello, {:?}!", john);
-}
+const FOO: &str = "foo";
 
-#[derive(Debug)]
-struct User {
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub struct User {
     name: String,
     surname: String,
-}
-
-impl User {
-    pub fn new(name: impl Into<String>, surname: impl Into<String>) -> Self {
-        User {
-            name: name.into(),
-            surname: surname.into(),
-        }
-    }
 }
 ```
 
 </div>
+
+::right::
+
+<v-click>
+
+```plantuml
+@startwbs
+skinparam backgroundColor transparent
+skinparam monochrome reverse
+!option handwritten true
+
+* Crate
+** Item
+*** visibility: Inherited
+*** kind: Const
+**** ident: FOO#0
+***** ident: str#0
+***** Body: Lit("foo")
+
+** Item
+*** visibility: Public
+*** kind: Struct
+**** attributes: derive, allow
+**** fields
+
+@endwbs
+```
+
+</v-click>
+
+---
+layout: statement
+---
+
+# Create your first linter
+
+---
+hideInToc: true
+---
+
+# Steps:
+
+- Identify if you need AST or HIR
+- Declare test cases
+- [Name your linter](https://rust-lang.github.io/rfcs/0344-conventions-galore.html#lints)
+- Implement business logic
+- Integrate it with [dylint](https://github.com/trailofbits/dylint)
 
 ---
 
